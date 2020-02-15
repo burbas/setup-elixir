@@ -1,20 +1,15 @@
-name: Setup Elixir
-description: Set up a specific version of OTP and Elixir and add the command-line tools to the PATH
+name: Setup Erlang
+description: Set up a specific version of OTP and add the command-line tools to the PATH
 author: GitHub
 branding:
   color: blue
   icon: code
 inputs:
-  elixir-version:
-    description: Version range or exact version of Elixir to use
   otp-version:
     description: Version range or exact version of OTP to use
-  install-hex:
-    description: Whether to install Hex
-    default: true
   install-rebar:
     description: Whether to install Rebar
     default: true
 runs:
   using: node12
-  main: src/setup-elixir.js
+  main: src/setup-erlang.js

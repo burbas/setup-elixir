@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -eo pipefail
+
+cd /tmp
+
+wget -q https://s3.amazonaws.com/rebar3/rebar3
+echo "::add-path::$(pwd)"
