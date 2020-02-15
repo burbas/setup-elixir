@@ -1,13 +1,10 @@
-# setup-elixir
+# setup-erlang
 
-[![](https://github.com/actions/setup-elixir/workflows/Test/badge.svg)](https://github.com/actions/setup-elixir/actions)
-[![](https://github.com/actions/setup-elixir/workflows/Licensed/badge.svg)](https://github.com/actions/setup-elixir/actions)
-
-This action sets up an Elixir environment for use in a GitHub Actions
+This action sets up an Erlang environment for use in a GitHub Actions
 workflow by:
 
 - Installing OTP
-- Installing Elixir
+- (optional) Installing rebar3
 
 **Note** Currently, this action currently only supports Actions' `ubuntu-` runtimes.
 
@@ -17,7 +14,7 @@ See [action.yml](action.yml).
 
 **Note** The OTP release version specification is [relatively
 complex](http://erlang.org/doc/system_principles/versions.html#version-scheme).
-For best results, we recommend specifying exact OTP and Elixir versions.
+For best results, we recommend specifying exact OTP version.
 However, values like `22.x` are also accepted, and we attempt to resolve them
 according to semantic versioning rules.
 
@@ -31,12 +28,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-elixir@v1
+      - uses: actions/setup-erlang@v1
         with:
           otp-version: 22.2
-          elixir-version: 1.9.4
-      - run: mix deps.get
-      - run: mix test
+      - run: rebar3 get-deps
+      - run: rebar3 ct
 ```
 
 ### Matrix example
@@ -47,22 +43,21 @@ on: push
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
+    name: OTP ${{matrix.otp}}
     strategy:
       matrix:
         otp: [20.3, 21.3, 22.2]
-        elixir: [1.8.2, 1.9.4]
+        os: [ubuntu-latest, macOS-latest]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-elixir@v1
+      - uses: actions/setup-erlang@v1
         with:
           otp-version: ${{matrix.otp}}
-          elixir-version: ${{matrix.elixir}}
-      - run: mix deps.get
-      - run: mix test
+      - run: rebar3 compile
+      - run: rebar3 ct
 ```
 
-### Phoenix example
+### Nova example
 
 ```yaml
 on: push
@@ -83,41 +78,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-elixir@v1
+      - uses: actions/setup-erlang@v1
         with:
           otp-version: 22.2
-          elixir-version: 1.9.4
-      - run: mix deps.get
-      - run: mix test
-```
-
-#### Authenticating with Postgres in Phoenix
-
-When using the Phoenix example above, the `postgres` container has some
-default authentication set up. Specifically, it expects a username of
-"postgres", and a password of "postgres". It will be available at
-`localhost:5432`.
-
-The simplest way of setting these auth values in CI is by checking for the
-`GITHUB_ACTIONS` environment variable that is set in all workflows:
-
-```elixir
-# config/test.exs
-
-use Mix.Config
-
-# Configure the database for local testing
-config :app, App.Repo,
-  database: "my_app_test",
-  hostname: "localhost",
-  pool: Ecto.Adapters.SQL.Sandbox
-
-# Configure the database for GitHub Actions
-if System.get_env("GITHUB_ACTIONS") do
-  config :app, App.Repo,
-    username: "postgres",
-    password: "postgres"
-end
+      - run: rebar3 compile
+      - run: rebar3 ct
 ```
 
 ## License
